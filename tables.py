@@ -2,7 +2,7 @@
 
 import logging
 import psycopg2
-from .connect import db_connect
+from .thunder_loja.db_handler import db_connect
 
 
 def create_tables():

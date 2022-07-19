@@ -1,3 +1,1 @@
-from . import app
-from . import connect
-from . import tables
+from . import db_handler
