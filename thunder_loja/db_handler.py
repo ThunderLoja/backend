@@ -30,7 +30,7 @@ class DBHandler():
         return db
 
 
-    def _connect(self) -> psycopg2.extensions.connection:
+    def connect(self) -> psycopg2.extensions.connection:
         """ Connect to the PostgreSQL database server """
         conn = None
         try:
@@ -52,17 +52,26 @@ class DBHandler():
 
 
     def send_command(self, sql: str):
-        # conecta
-        # pegar cursor
-        # pegar resposta
-        # fechar cursor
-        # fechar conexão
-        # retornar a resposta
-        pass
+        """ Receive and send the sql command to the PostgreSQL database server"""
+        conn = None
+        try:
+            conn = self._connect
+            cur = conn.cursor()
+            for cmd in sql:
+                cur.execute(cmd)
+            output = cur.fetchall()
+            conn.commit()
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            self._logger.error(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        return output
 
 
     def test_connection(self):
-        conn = self._connect()
+        conn = self.connect()
 
         if conn is not None:
             # create a cursor
