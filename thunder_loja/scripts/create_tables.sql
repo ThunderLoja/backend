@@ -6,7 +6,7 @@ CREATE TABLE colaborador (
     colab_data_admi DATE NOT NULL,
     colab_tipo      NUMERIC(2) NOT NULL,
     colab_ger_id    NUMERIC(11),
-    colab_senha     VARCHAR(50) NOT NULL
+    colab_senha     VARCHAR(50) NOT NULL,
     PRIMARY KEY(colab_id)
 );
 
@@ -56,7 +56,7 @@ CREATE TABLE pagamento (
 CREATE TABLE venda (
     tr_id    NUMERIC(11) NOT NULL,
     clt_cpf  NUMERIC(11) NOT NULL,
-    colab_id NUMERIC(11) NOT NULL
+    colab_id NUMERIC(11) NOT NULL,
     PRIMARY KEY(tr_id)
 );
 
@@ -83,7 +83,5 @@ ALTER TABLE venda
     ADD FOREIGN KEY (colab_id) REFERENCES colaborador(colab_id);
 
 ALTER TABLE itens_venda
-    ADD FOREIGN KEY (id_venda) REFERENCES venda(id),
-    ADD FOREIGN KEY (id_prod)  REFERENCES prod(id);
-
-
+    ADD FOREIGN KEY (tr_id) REFERENCES venda(tr_id),
+    ADD FOREIGN KEY (prod_id)  REFERENCES produto(prod_id);
