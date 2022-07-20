@@ -75,6 +75,7 @@ class DBHandler(metaclass=Singleton):
         """ Receive and send the sql command to the PostgreSQL database server"""
 
         output = None
+        error_msg = None
 
         try:
             self.connect()
@@ -90,10 +91,11 @@ class DBHandler(metaclass=Singleton):
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             self._logger.error(error)
+            error_msg = str(error)
         finally:
             self.disconnect()
         
-        return output
+        return output, error_msg
 
 
     def send_script(self, sql_script: str):
@@ -103,6 +105,7 @@ class DBHandler(metaclass=Singleton):
             return None
 
         output = None
+        error_msg = None
 
         try:
             self.connect()
@@ -120,9 +123,11 @@ class DBHandler(metaclass=Singleton):
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             self._logger.error(error)
+            error_msg = str(error)
         finally:
             self.disconnect()
-        return output
+
+        return output, error_msg
 
 
     def sql_script_to_array(self, sql_script: str):

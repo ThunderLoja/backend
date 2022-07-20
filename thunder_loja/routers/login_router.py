@@ -31,9 +31,9 @@ async def get(colab_data: ColabLoginData):
            WHERE colab_id = {colab_data.id} and colab_senha = '{colab_data.password}' and colab_ativo = B'1'
            """
     db_handler = DBHandler()
-    colaborator = db_handler.send_command(sql)
+    colaborator, error_msg = db_handler.send_command(sql)
 
-    if colaborator is not None:
+    if error_msg is None:
         if colaborator:
             logger.debug(colaborator)
 
@@ -52,4 +52,4 @@ async def get(colab_data: ColabLoginData):
         else:
             raise HTTPException(status_code=401, detail="Login failed")
     else:
-        raise HTTPException(status_code=500, detail="Failed to get contributors")
+        raise HTTPException(status_code=500, detail=error_msg)
