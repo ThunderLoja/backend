@@ -51,6 +51,8 @@ async def get(colab_data: ColabLoginData):
 
             return colab_data
         else:
+            logger.debug("Login failed")
             raise HTTPException(status_code=401, detail="Login failed")
     else:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)

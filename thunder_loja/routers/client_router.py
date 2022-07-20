@@ -41,6 +41,7 @@ async def get():
         
         return client_data
     else:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
 
@@ -57,11 +58,13 @@ async def get(cpf: int):
     if error_msg is None:
         if client:
             client_data = ClientData(cpf=client[0][0], name=client[0][1])
-    
+            logger.debug(f"Cliente: {client}")
             return client_data
         else:
+            logger.debug("Client not found")
             raise HTTPException(status_code=404, detail="Client not found")
     else:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
 
@@ -77,7 +80,10 @@ async def post(client: ClientData):
     _, error_msg = db_handler.send_command(sql)
 
     if error_msg is not None:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
+
+    logger.debug("Client added")
 
 
 @router.put("/atualizar")
@@ -94,7 +100,11 @@ async def put(client: ClientData):
     client, error_msg = db_handler.send_command(sql)
 
     if error_msg is not None:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
     if not client:
+        logger.debug("Client not found")
         raise HTTPException(status_code=404, detail="Client not found")
+
+    logger.debug(f"Cliente: {client}")

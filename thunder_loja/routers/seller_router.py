@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 # Logger
-logger = logging.getLogger('ClientRoute')
+logger = logging.getLogger('SellerRoute')
 
 
 @router.get("/ativos")
@@ -49,6 +49,7 @@ async def get():
         
         return seller_data
     else:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
         
 
@@ -75,10 +76,14 @@ async def get(id: int):
                             manager_id=seller[0][7],
                             password="***")
     
+            logger.debug(f"Seller: {seller}")
+
             return seller_data
         else:
-            raise HTTPException(status_code=404, detail="Client not found")
+            logger.debug("Seller not found")
+            raise HTTPException(status_code=404, detail="Seller not found")
     else:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
 
@@ -93,7 +98,10 @@ async def post(seller: ColabData):
     _, error_msg = db_handler.send_command(sql)
 
     if error_msg is not None:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
+
+    logger.debug("Seller added")
 
 
 @router.put("/atualizar")
@@ -117,7 +125,11 @@ async def put(seller: ColabData):
     seller, error_msg = db_handler.send_command(sql)
 
     if error_msg is not None:
+        logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
     if not seller:
-        raise HTTPException(status_code=404, detail="Client not found")
+        logger.debug("Seller not found")
+        raise HTTPException(status_code=404, detail="Seller not found")
+
+    logger.debug(f"Seller: {seller}")
