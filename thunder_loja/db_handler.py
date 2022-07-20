@@ -1,11 +1,14 @@
 #!/usr/bin/python3
 
 import logging
+import threading
 import psycopg2
 from configparser import ConfigParser
 
+
 class DBHandler():
     def __init__(self, config_file: str, config_section: str):
+        self._lock = threading.Lock()
         self._config_file = config_file
         self._config_section = config_section
 
@@ -53,12 +56,22 @@ class DBHandler():
 
     def send_command(self, sql: str):
         """ Receive and send the sql command to the PostgreSQL database server"""
+        
         conn = None
+        output = None
+        
+        self._lock.acquire()
+
         try:
-            conn = self._connect
+            conn = self._connect()
             cur = conn.cursor()
             cur.execute(sql)
-            output = cur.fetchall()
+
+            try:
+                output = cur.fetchall()
+            except (Exception, psycopg2.ProgrammingError) as error:
+                self._logger.debug(error)
+            
             conn.commit()
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -66,6 +79,8 @@ class DBHandler():
         finally:
             if conn is not None:
                 conn.close()
+            self._lock.release()
+        
         return output
 
 
@@ -76,13 +91,21 @@ class DBHandler():
             return None
 
         conn = None
+        output = None
+        
+        self._lock.acquire()
 
         try:
-            conn = self._connect
+            conn = self._connect()
             cur = conn.cursor()
             for cmd in sql_commands:
                 cur.execute(cmd)
-            output = cur.fetchall()
+            
+            try:
+                output = cur.fetchall()
+            except (Exception, psycopg2.ProgrammingError) as error:
+                self._logger.debug(error)
+
             conn.commit()
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -90,6 +113,7 @@ class DBHandler():
         finally:
             if conn is not None:
                 conn.close()
+            self._lock.release()
         return output
         
 
@@ -115,6 +139,7 @@ class DBHandler():
             return True
         
         return False
+
 
     def sql_script_to_array(self, sql_script: str):
         sql_file = None

@@ -5,6 +5,7 @@ CREATE TABLE colaborador (
     colab_salario   NUMERIC(9,2) NOT NULL,
     colab_data_admi DATE NOT NULL,
     colab_tipo      NUMERIC(2) NOT NULL,
+    colab_ativo     BIT NOT NULL, 
     colab_ger_id    NUMERIC(11),
     colab_senha     VARCHAR(50) NOT NULL,
     PRIMARY KEY(colab_id)
