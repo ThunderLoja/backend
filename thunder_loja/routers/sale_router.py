@@ -1,5 +1,9 @@
-from fastapi import APIRouter
+import logging
+from typing import Union
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
+from thunder_loja.db_handler import DBHandler
 
 
 # Data
@@ -17,16 +21,21 @@ router = APIRouter(
 )
 
 
-@router.get("/{transaction_id}")
-async def get(transaction_id: int):
-    return {"message": f"Hello Venda {transaction_id}"}
+# Logger
+logger = logging.getLogger('SaleRoute')
 
 
-@router.post("/")
+@router.get("/relatorio")
+async def get(q: Union[str, None] = None):
+    # Join 
+    return {"message": f"Hello Relatorio de Venda"}
+
+
+@router.post("/nova")
 async def post(sale_data: SaleData):
-    return {"message": f"Hello Venda {sale_data.transaction_id}"}
-
-
-@router.put("/")
-async def put(sale_data: SaleData):
+    # Dados do json: transação, venda, [(prod_id, quant)...]
+    # Criar nova linha em transacao
+    # Criar nova linha em venda
+    # Iterar pelo array, subtraindo a quantidade do produto e adicionando cada linha a prod_venda
+    # Commit
     return {"message": f"Hello Venda {sale_data.transaction_id}"}
