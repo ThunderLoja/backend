@@ -24,8 +24,10 @@ def main():
     logger = logging.getLogger("Tables")
     action = parse_arguments()
 
-    db_handler = DBHandler(config_file="cfg/database.ini",
-                           config_section="thunder_loja_db")
+    db_handler = DBHandler()
+
+    db_handler.initialise(config_file="cfg/database.ini",
+                          config_section="thunder_loja_db")
 
     if action == 'create':
         logger.info('Creating tables')

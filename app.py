@@ -2,9 +2,15 @@ import logging
 from fastapi import FastAPI
 
 from thunder_loja.routers import client_router, login_router, product_router, sale_router, seller_router
+from thunder_loja.db_handler import DBHandler
 
 # Config logger
 logging.basicConfig(level=logging.INFO)
+
+# Create singleton to handle DB connection
+db_handler = DBHandler()
+db_handler.initialise(config_file="cfg/database.ini",
+                      config_section="thunder_loja_db")
 
 # Create app
 app = FastAPI()

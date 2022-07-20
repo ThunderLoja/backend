@@ -5,12 +5,15 @@ import threading
 import psycopg2
 from configparser import ConfigParser
 
+from .singleton import Singleton
 
-class DBHandler():
-    def __init__(self, config_file: str, config_section: str):
-        self._lock = threading.Lock()
+
+class DBHandler(metaclass=Singleton):
+    def initialise(self, config_file: str, config_section: str):
+        self._db_lock = threading.Lock()
         self._config_file = config_file
         self._config_section = config_section
+        self._conn = None
 
         self._logger = logging.getLogger("DBHandler")
 
@@ -33,38 +36,49 @@ class DBHandler():
         return db
 
 
-    def _connect(self) -> psycopg2.extensions.connection:
+    def connect(self) -> psycopg2.extensions.connection:
         """ Connect to the PostgreSQL database server """
-        conn = None
+        self._db_lock.acquire()
+        
         try:
             # read connection parameters
             params = self._config()
 
             # connect to the PostgreSQL server
             self._logger.info('Connecting to the PostgreSQL database...')
-            conn = psycopg2.connect(**params)
+            self._conn = psycopg2.connect(**params)
 
         except (Exception, psycopg2.DatabaseError) as error:
             self._logger.error(error)
 
-            if conn is not None:
-                conn.close()
+            if self._conn is not None:
+                self._conn.close()
+                self._conn = None
+                self._db_lock.release()
                 self._logger.info('Database connection closed')
 
-        return conn
+        return self._conn
+
+
+    def disconnect(self):
+        """ Disconnect to the PostgreSQL database server """
+
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
+            self._logger.info('Database connection closed')
+
+        self._db_lock.release()
 
 
     def send_command(self, sql: str):
         """ Receive and send the sql command to the PostgreSQL database server"""
-        
-        conn = None
+
         output = None
-        
-        self._lock.acquire()
 
         try:
-            conn = self._connect()
-            cur = conn.cursor()
+            self.connect()
+            cur = self._conn.cursor()
             cur.execute(sql)
 
             try:
@@ -72,14 +86,12 @@ class DBHandler():
             except (Exception, psycopg2.ProgrammingError) as error:
                 self._logger.debug(error)
             
-            conn.commit()
+            self._conn.commit()
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             self._logger.error(error)
         finally:
-            if conn is not None:
-                conn.close()
-            self._lock.release()
+            self.disconnect()
         
         return output
 
@@ -90,14 +102,12 @@ class DBHandler():
         if sql_commands is None:
             return None
 
-        conn = None
         output = None
-        
-        self._lock.acquire()
 
         try:
-            conn = self._connect()
-            cur = conn.cursor()
+            self.connect()
+            
+            cur = self._conn.cursor()
             for cmd in sql_commands:
                 cur.execute(cmd)
             
@@ -106,39 +116,13 @@ class DBHandler():
             except (Exception, psycopg2.ProgrammingError) as error:
                 self._logger.debug(error)
 
-            conn.commit()
+            self._conn.commit()
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             self._logger.error(error)
         finally:
-            if conn is not None:
-                conn.close()
-            self._lock.release()
+            self.disconnect()
         return output
-        
-
-    def test_connection(self):
-        conn = self.connect()
-
-        if conn is not None:
-            # create a cursor
-            cur = conn.cursor()
-            
-            # execute a statement
-            self._logger.info('PostgreSQL database version:')
-            cur.execute('SELECT version()')
-
-            # display the PostgreSQL database server version
-            db_version = cur.fetchone()
-            self._logger.info(db_version)
-        
-            # close the communication with the PostgreSQL
-            cur.close()
-            conn.close()
-
-            return True
-        
-        return False
 
 
     def sql_script_to_array(self, sql_script: str):
@@ -156,3 +140,27 @@ class DBHandler():
         sql_commands = [i for i in sql_commands if i]
 
         return sql_commands
+
+
+    def test_connection(self):
+        self.connect()
+
+        if self._conn is not None:
+            # create a cursor
+            cur = self._conn.cursor()
+            
+            # execute a statement
+            self._logger.info('PostgreSQL database version:')
+            cur.execute('SELECT version()')
+
+            # display the PostgreSQL database server version
+            db_version = cur.fetchone()
+            self._logger.info(db_version)
+        
+            # close the communication with the PostgreSQL
+            cur.close()
+            self.disconnect()
+
+            return True
+        
+        return False
