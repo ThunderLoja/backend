@@ -24,7 +24,7 @@ def execute_script(db_handler: DBHandler, script: str):
     sql_commands = sql_file.replace('\n','').split(';')
     sql_commands = [i for i in sql_commands if i]
 
-    conn = db_handler.connect()
+    conn = db_handler._connect()
     
     if conn is not None:
         cur = conn.cursor()

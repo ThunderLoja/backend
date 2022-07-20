@@ -16,16 +16,9 @@ CREATE TABLE produto (
     prod_valor     NUMERIC(9,2) NOT NULL,
     prod_descricao VARCHAR(512) NOT NULL,
     prod_categoria VARCHAR(30) NOT NULL,
+    prod_quant      NUMERIC(4) NOT NULL,
     PRIMARY KEY(prod_id)
 );
-
-CREATE TABLE estoque (
-    prod_id    NUMERIC(11) NOT NULL,
-    loja_id    NUMERIC(2) NOT NULL,
-    est_quant  NUMERIC(4) NOT NULL,
-    PRIMARY KEY (prod_id, loja_id)
-);
-
 
 CREATE TABLE cliente (
     clt_cpf  NUMERIC(11) NOT NULL,
@@ -43,13 +36,9 @@ CREATE TABLE transacao (
 );
 
 CREATE TABLE pagamento (
-    tr_id      NUMERIC(11) NOT NULL,
-    colab_id   NUMERIC(11) NOT NULL,
-    pag_bruto  NUMERIC(9,2) NOT NULL,
-    pag_bonus  NUMERIC(9,2),
-    pag_fgts   NUMERIC(9,2),
-    pag_ferias NUMERIC(9,2),
-    pag_13     NUMERIC(9,2),
+    tr_id       NUMERIC(11) NOT NULL,
+    colab_id    NUMERIC(11) NOT NULL,
+    pag_liquido NUMERIC(9,2) NOT NULL,
     PRIMARY KEY (tr_id, colab_id)
 );
 
@@ -60,7 +49,7 @@ CREATE TABLE venda (
     PRIMARY KEY(tr_id)
 );
 
-CREATE TABLE itens_venda (
+CREATE TABLE prod_venda (
     tr_id      NUMERIC(11) NOT NULL,
     prod_id    NUMERIC(11) NOT NULL,
     vend_quant NUMERIC(3) NOT NULL,
@@ -69,9 +58,6 @@ CREATE TABLE itens_venda (
 
 ALTER TABLE colaborador
     ADD FOREIGN KEY (colab_ger_id) REFERENCES colaborador(colab_id);
-
-ALTER TABLE estoque
-    ADD FOREIGN KEY (prod_id) REFERENCES produto(prod_id);
 
 ALTER TABLE pagamento
     ADD FOREIGN KEY (tr_id)    REFERENCES transacao(tr_id),
@@ -82,6 +68,6 @@ ALTER TABLE venda
     ADD FOREIGN KEY (clt_cpf)  REFERENCES cliente(clt_cpf),
     ADD FOREIGN KEY (colab_id) REFERENCES colaborador(colab_id);
 
-ALTER TABLE itens_venda
+ALTER TABLE prod_venda
     ADD FOREIGN KEY (tr_id) REFERENCES venda(tr_id),
     ADD FOREIGN KEY (prod_id)  REFERENCES produto(prod_id);
