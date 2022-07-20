@@ -1,5 +1,6 @@
 import logging
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from thunder_loja.routers import client_router, login_router, product_router, sale_router, seller_router
 from thunder_loja.db_handler import DBHandler
@@ -14,6 +15,11 @@ db_handler.initialise(config_file="cfg/database.ini",
 
 # Create app
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*']
+)
 
 @app.get("/")
 async def root():
