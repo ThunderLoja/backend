@@ -11,6 +11,7 @@ class ColabData(BaseModel):
     colab_type: int
     is_active: bool
     manager_id: int
+    password: str
 
 
 class ProductData(BaseModel):

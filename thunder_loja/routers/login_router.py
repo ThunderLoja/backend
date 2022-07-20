@@ -45,7 +45,8 @@ async def get(colab_data: ColabLoginData):
                 admission_date=colaborator[0][4],
                 colab_type=colaborator[0][5],
                 is_active=colaborator[0][6],
-                manager_id=colaborator[0][7]
+                manager_id=colaborator[0][7],
+                password="***"
             )
 
             return colab_data
