@@ -8,7 +8,7 @@ INSERT INTO colaborador(colab_id, colab_nome, colab_cpf, colab_salario, colab_da
  VALUES(00000000003, 'Greghory', 00000000003, 300.00, '2000-08-03', 2, B'1', 00000000003, 'senha3');
 
 INSERT INTO colaborador(colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_tipo, colab_ativo, colab_ger_id, colab_senha)
- VALUES(00000000004, 'Vanderson', 00000000004, 400.00, '2000-08-04', 2, B'1', 00000000004, 'senha4');
+ VALUES(00000000004, 'Vanderson', 00000000004, 400.00, '2000-08-04', 2, B'0', 00000000004, 'senha4');
 
 INSERT INTO colaborador(colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_tipo, colab_ativo, colab_ger_id, colab_senha)
  VALUES(00000000005, 'Lucas Schneider', 00000000005, 500.00, '2000-08-05', 2, B'1', 00000000005, 'senha5');
