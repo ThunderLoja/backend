@@ -23,7 +23,7 @@ router = APIRouter(
 logger = logging.getLogger('LoginRoute')
 
 
-@router.put("/")
+@router.put("")
 async def get(colab_data: ColabLoginData):
     sql = f"""
            SELECT colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_tipo, colab_ativo, colab_ger_id

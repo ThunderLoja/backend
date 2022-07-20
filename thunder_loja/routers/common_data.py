@@ -10,7 +10,7 @@ class ColabData(BaseModel):
     admission_date: datetime.date
     colab_type: int
     is_active: bool
-    manager_id: int
+    manager_id: int = None
     password: str
 
 
