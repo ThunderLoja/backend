@@ -18,6 +18,10 @@ Para rodar a aplicação, faça:
 uvicorn app:app --reload
 ```
 
+### Chamadas na API
+
+Para fazer chamadas na API local, acesse [aqui](http://127.0.0.1:8000/docs).
+
 ## 📝 Gerar documentação
 
 Para gerar a documentação, faça:
