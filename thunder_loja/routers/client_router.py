@@ -4,8 +4,8 @@ from pydantic import BaseModel
 
 # Data
 class ClientData(BaseModel):
-    name: str
     cpf: int
+    name: str
 
 
 # Router
@@ -20,3 +20,12 @@ router = APIRouter(
 async def get(cpf: int):
     return {"message": f"Hello Cliente {cpf}"}
 
+
+@router.post("/")
+async def post(client: ClientData):
+    return {"message": f"Hello Cliente {client.name}"}
+
+
+@router.put("/")
+async def put(client: ClientData):
+    return {"message": f"Hello Cliente {client.name}"}
