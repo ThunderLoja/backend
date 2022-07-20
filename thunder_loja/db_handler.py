@@ -30,7 +30,7 @@ class DBHandler():
         return db
 
 
-    def connect(self) -> psycopg2.extensions.connection:
+    def _connect(self) -> psycopg2.extensions.connection:
         """ Connect to the PostgreSQL database server """
         conn = None
         try:
@@ -57,8 +57,7 @@ class DBHandler():
         try:
             conn = self._connect
             cur = conn.cursor()
-            for cmd in sql:
-                cur.execute(cmd)
+            cur.execute(sql)
             output = cur.fetchall()
             conn.commit()
             cur.close()
@@ -69,6 +68,30 @@ class DBHandler():
                 conn.close()
         return output
 
+
+    def send_script(self, sql_script: str):
+        sql_commands = self.sql_script_to_array(sql_script)
+        
+        if sql_commands is None:
+            return None
+
+        conn = None
+
+        try:
+            conn = self._connect
+            cur = conn.cursor()
+            for cmd in sql_commands:
+                cur.execute(cmd)
+            output = cur.fetchall()
+            conn.commit()
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            self._logger.error(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        return output
+        
 
     def test_connection(self):
         conn = self.connect()
@@ -92,3 +115,19 @@ class DBHandler():
             return True
         
         return False
+
+    def sql_script_to_array(self, sql_script: str):
+        sql_file = None
+
+        try:
+            with open(sql_script, 'r') as file:
+                sql_file = file.read()
+        except FileNotFoundError:
+            self._logger.error("File not found")
+            return None
+
+        # Remove new lines, split commands and remove empty commands
+        sql_commands = sql_file.replace('\n','').split(';')
+        sql_commands = [i for i in sql_commands if i]
+
+        return sql_commands
