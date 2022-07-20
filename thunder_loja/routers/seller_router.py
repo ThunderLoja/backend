@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+import datetime
 import logging
 
 from thunder_loja.db_handler import DBHandler
@@ -17,10 +18,64 @@ router = APIRouter(
 logger = logging.getLogger('SellerRoute')
 
 
-@router.get("/ativos")
-async def get():
+class SellerGetData(BaseModel):
+    id: int
+    name: str
+    cpf: int
+    salary: float
+    admission_date: datetime.date
+    is_active: bool
+    manager_id: int
+
+
+class SellerNewData(BaseModel):
+    name: str
+    cpf: int
+    salary: float
+    admission_date: datetime.date
+    is_active: bool
+    manager_id: int
+    password: str
+
+
+@router.get("/todos")
+async def get_all():
     sql = f"""
-           SELECT colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_tipo, colab_ativo, colab_ger_id
+           SELECT colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_ativo, colab_ger_id
+           FROM colaborador
+           WHERE colab_tipo = 2
+           """
+    db_handler = DBHandler()
+
+    sellers, error_msg = db_handler.send_command(sql)
+
+    if error_msg is None:
+        seller_data = []
+        
+        for seller in sellers:
+            seller_data.append(
+                SellerGetData(
+                    id=seller[0],
+                    name=seller[1],
+                    cpf=seller[2],
+                    salary=seller[3],
+                    admission_date=seller[4],
+                    is_active=seller[5],
+                    manager_id=seller[6],
+                )
+            )
+            logger.debug(f"Seller: {seller}")
+        
+        return seller_data
+    else:
+        logger.error(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
+
+
+@router.get("/ativos")
+async def get_acive():
+    sql = f"""
+           SELECT colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_ativo, colab_ger_id
            FROM colaborador
            WHERE colab_tipo = 2 and colab_ativo = B'1'
            """
@@ -33,16 +88,14 @@ async def get():
         
         for seller in sellers:
             seller_data.append(
-                ColabData(
+                SellerGetData(
                     id=seller[0],
                     name=seller[1],
                     cpf=seller[2],
                     salary=seller[3],
                     admission_date=seller[4],
-                    colab_type=seller[5],
-                    is_active=seller[6],
-                    manager_id=seller[7],
-                    password="***"
+                    is_active=seller[5],
+                    manager_id=seller[6],
                 )
             )
             logger.debug(f"Seller: {seller}")
@@ -54,11 +107,11 @@ async def get():
         
 
 @router.get("/{id}")
-async def get(id: int):
+async def get_id(id: int):
     sql = f"""
-           SELECT *
+           SELECT colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_ativo, colab_ger_id
            FROM colaborador
-           WHERE colab_id = {id}
+           WHERE colab_id = {id} and colab_tipo = 2
            """
     db_handler = DBHandler()
     seller, error_msg = db_handler.send_command(sql)
@@ -66,15 +119,13 @@ async def get(id: int):
     if error_msg is None:
         if seller:
             seller_data = ColabData(
-                            id=seller[0][0],
-                            name=seller[0][1],
-                            cpf=seller[0][2],
-                            salary=seller[0][3],
-                            admission_date=seller[0][4],
-                            colab_type=seller[0][5],
-                            is_active=seller[0][6],
-                            manager_id=seller[0][7],
-                            password="***")
+                            id=seller[0],
+                            name=seller[1],
+                            cpf=seller[2],
+                            salary=seller[3],
+                            admission_date=seller[4],
+                            is_active=seller[5],
+                            manager_id=seller[6])
     
             logger.debug(f"Seller: {seller}")
 
@@ -88,9 +139,9 @@ async def get(id: int):
 
 
 @router.post("/novo")
-async def post(seller: ColabData):
-    sql = f"""INSERT INTO colaborador(colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_tipo, colab_ativo, colab_ger_id, colab_senha)
-                VALUES({seller.id}, '{seller.name}', {seller.cpf}, {seller.salary}, '{seller.admission_date}', 2, B'{int(seller.is_active)}', {seller.manager_id}, '{seller.password}');
+async def post(seller: SellerNewData):
+    sql = f"""INSERT INTO colaborador(colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_tipo, colab_ativo, colab_ger_id, colab_senha)
+                VALUES('{seller.name}', {seller.cpf}, {seller.salary}, '{seller.admission_date}', 2, B'{int(seller.is_active)}', {seller.manager_id}, '{seller.password}');
             """
      
     db_handler = DBHandler()

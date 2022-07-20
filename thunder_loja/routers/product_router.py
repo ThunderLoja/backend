@@ -18,6 +18,14 @@ router = APIRouter(
 logger = logging.getLogger('ProductRoute')
 
 
+class ProductNewData(BaseModel):
+    name: str
+    price: float
+    description: str
+    category: str
+    quantity: int
+
+
 @router.get("/todos")
 async def get():
     sql = f"""
@@ -119,10 +127,10 @@ async def get(id: int):
 
 
 @router.post("/novo")
-async def post(product: ProductData):
+async def post(product: ProductNewData):
     sql = f"""
-           INSERT INTO produto(prod_id, prod_nome, prod_valor, prod_descricao, prod_categoria, prod_quant)
-            VALUES({product.id}, '{product.name}', {product.price}, '{product.description}', '{product.category}', {product.quantity});
+           INSERT INTO produto(prod_nome, prod_valor, prod_descricao, prod_categoria, prod_quant)
+            VALUES('{product.name}', {product.price}, '{product.description}', '{product.category}', {product.quantity});
            """ 
     
     db_handler = DBHandler()

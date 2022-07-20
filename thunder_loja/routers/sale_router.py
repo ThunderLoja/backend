@@ -33,7 +33,6 @@ class SaleData(BaseModel):
 
 
 class NewSaleData(BaseModel):
-    id: int
     value: float
     date: datetime.date
     description: str
@@ -169,8 +168,8 @@ async def post(sale_data: NewSaleData):
 
         # Criar nova linha em transacao
         sql = f"""
-            INSERT INTO transacao(tr_id, tr_valor, tr_data, tr_descricao, tr_tipo)
-            VALUES({sale_data.id}, {sale_data.value}, '{sale_data.date}', '{sale_data.description}', 2) RETURNING tr_id;
+            INSERT INTO transacao(tr_valor, tr_data, tr_descricao, tr_tipo)
+            VALUES({sale_data.value}, '{sale_data.date}', '{sale_data.description}', 2) RETURNING tr_id;
             """
 
         cur.execute(sql)
@@ -228,4 +227,3 @@ async def post(sale_data: NewSaleData):
     if error_msg is not None:
         raise HTTPException(status_code=status_code, detail=error_msg)
     
-    return {"message": f"Hello Nova Venda"}
