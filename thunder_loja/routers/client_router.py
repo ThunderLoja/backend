@@ -27,6 +27,7 @@ async def get():
     sql = f"""
            SELECT *
            FROM cliente
+           ORDER BY clt_cpf
            """
     db_handler = DBHandler()
 

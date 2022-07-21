@@ -44,6 +44,7 @@ async def get_all():
            SELECT colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_ativo, colab_ger_id
            FROM colaborador
            WHERE colab_tipo = 2
+           ORDER BY colab_id
            """
     db_handler = DBHandler()
 
@@ -78,6 +79,7 @@ async def get_acive():
            SELECT colab_id, colab_nome, colab_cpf, colab_salario, colab_data_admi, colab_ativo, colab_ger_id
            FROM colaborador
            WHERE colab_tipo = 2 and colab_ativo = B'1'
+           ORDER BY colab_id
            """
     db_handler = DBHandler()
 

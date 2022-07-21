@@ -31,6 +31,7 @@ async def get():
     sql = f"""
            SELECT *
            FROM produto
+           ORDER BY prod_id
            """
     db_handler = DBHandler()
 
@@ -64,6 +65,7 @@ async def get():
            SELECT *
            FROM produto
            WHERE prod_quant > 0
+           ORDER BY prod_id
            """
     db_handler = DBHandler()
 
